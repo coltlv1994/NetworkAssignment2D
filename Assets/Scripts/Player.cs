@@ -41,7 +41,10 @@ public class Player : NetworkBehaviour
             transform.position += m_xoyAxisVector * m_maxSpeed * Time.deltaTime;
 
             transform.up = m_xoyAxisVector; // rotate the spaceship
+        }
 
+        if (IsHost)
+        {
             foreach (Bullet bullet in m_bulletPool)
             {
                 bullet.UpdateInPool(Time.deltaTime);
@@ -51,9 +54,29 @@ public class Player : NetworkBehaviour
 
     public void FireBullet()
     {
-        bool m_bulletFired = false;
-
         Vector3 m_bulletStartPosition = transform.position + transform.up.normalized * 2.5f;
+        if (IsHost)
+        {
+            FireBullet(m_bulletStartPosition, transform.up, true);
+        }
+        else
+        {
+            FireBulletsOnServerRpc(m_bulletStartPosition, transform.up);
+        }
+    }
+
+
+
+    [Rpc(SendTo.Server)]
+    void FireBulletsOnServerRpc(Vector3 p_position, Vector3 p_heading)
+    {
+        // server gonna fire bullet for client
+        FireBullet(p_position, p_heading, false);
+    }
+
+    void FireBullet(Vector3 p_position, Vector3 p_heading, bool p_isOwner)
+    {
+        bool m_bulletFired = false;
 
         // fire a bullet, first check if there is any "available bullet"
         foreach (Bullet bullet in m_bulletPool)
@@ -61,7 +84,7 @@ public class Player : NetworkBehaviour
             if (bullet.IsActive() == false)
             {
                 // reuse this bullet
-                bullet.Init(m_bulletStartPosition, transform.up, this);
+                bullet.Init(p_position, p_heading, p_isOwner);
                 m_bulletFired = true;
                 break;
             }
@@ -71,9 +94,12 @@ public class Player : NetworkBehaviour
         {
             // no available bullets and no more than 20 in the wild
             // fire a "new" bullet
-            Bullet bulletFired = Instantiate(bulletBase, m_bulletStartPosition, Quaternion.identity);
-            bulletFired.Init(m_bulletStartPosition, transform.up, this);
+            Bullet bulletFired = Instantiate(bulletBase, p_position, Quaternion.identity);
+            bulletFired.Init(p_position, p_heading, p_isOwner);
+            var instanceNetworkObject = bulletFired.GetComponent<NetworkObject>();
+            instanceNetworkObject.Spawn();
             m_bulletPool.Add(bulletFired);
+
             m_bulletFired = true;
         }
     }
@@ -81,6 +107,12 @@ public class Player : NetworkBehaviour
     public void Score()
     {
         // call to server for scoring one points
+
+    }
+
+    [Rpc(SendTo.Server)]
+    void ClientScoreNotifyServerRpc()
+    {
 
     }
 }

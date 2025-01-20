@@ -9,15 +9,16 @@ public class Bullet : NetworkBehaviour
 
     private bool m_isActive = true;
 
-    private Player m_owner;
+    private bool m_owner;
 
-    public void Init(Vector3 p_initialPosition, Vector3 p_heading, Player p_owner)
+    public void Init(Vector3 p_initialPosition, Vector3 p_heading, bool p_owner)
     {
         transform.position = p_initialPosition;
         transform.up = p_heading;
         m_owner = p_owner;
         m_timeToDie = 1.5f;
         m_isActive = true;
+        this.GetComponent<Collider2D>().enabled = true;
     }
 
     public void UpdateInPool(float deltaTime)
@@ -48,10 +49,19 @@ public class Bullet : NetworkBehaviour
         {
             transform.position = new Vector3(0, 0, -20); // out of scope
         }
+        else
+        {
+            this.GetComponent<Collider2D>().enabled = true;
+        }
+
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        this.GetComponent<Collider2D>().enabled = false;
+
+        Debug.Log("Hit!");
+
         if (m_isActive == false)
         {
             return;
@@ -61,10 +71,11 @@ public class Bullet : NetworkBehaviour
         {
             Player e = null;
             collision.TryGetComponent<Player>(out e);
-            if (e != null && e != m_owner)
+            if (e != null && (e.IsOwner != m_owner))
             {
                 // an enemy is hit
-                m_owner.Score();
+                //m_owner.Score();
+                Debug.Log("Score!");
                 SetActive(false);
             }
         }
