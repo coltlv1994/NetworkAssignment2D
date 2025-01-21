@@ -29,7 +29,6 @@ public class NetworkMgr : MonoBehaviour
     {
         if (GUILayout.Button("Host")) m_NetworkManager.StartHost();
         if (GUILayout.Button("Client")) m_NetworkManager.StartClient();
-        if (GUILayout.Button("Server")) m_NetworkManager.StartServer();
     }
 
     void StatusLabels()
@@ -39,6 +38,6 @@ public class NetworkMgr : MonoBehaviour
 
         GUILayout.Label("Transport: " +
             m_NetworkManager.NetworkConfig.NetworkTransport.GetType().Name);
-        GUILayout.Label("Mode: " + mode);
+        GUILayout.Label("Mode: " + Time.deltaTime);
     }
 }

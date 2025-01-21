@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,13 +11,24 @@ public class Player : NetworkBehaviour
     float m_timeBeforeNextBullet = 1.0f / 2.0f; // 2 round(s) per second
     float m_bulletTimer = 0.0f;
 
+    public NetworkVariable<int> m_serverScore = new NetworkVariable<int>();
+    public NetworkVariable<int> m_clientScore = new NetworkVariable<int>();
+
     public List<Bullet> m_bulletPool = new List<Bullet>();
 
     public Bullet bulletBase;
 
+    [SerializeField] private TextMeshProUGUI m_selfScore;
+    public TMPro.TMP_Text m_enemyScore;
+
     public override void OnNetworkSpawn()
     { 
         m_bulletTimer = m_timeBeforeNextBullet;
+        if (IsServer)
+        {
+            m_serverScore.Value = 0;
+            m_clientScore.Value = 0;
+        }
     }
 
     private void Update()
@@ -114,5 +126,8 @@ public class Player : NetworkBehaviour
     void ClientScoreNotifyServerRpc()
     {
 
+    }
+    public void OnSomeValueChanged()
+    {
     }
 }

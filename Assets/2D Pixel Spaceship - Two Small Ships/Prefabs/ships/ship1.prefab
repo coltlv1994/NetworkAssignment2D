@@ -220,8 +220,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  m_serverScore:
+    m_InternalValue: 0
+  m_clientScore:
+    m_InternalValue: 0
   m_bulletPool: []
   bulletBase: {fileID: 4817381420709432428, guid: 1740469607c5ef74a9dce354e6c48998, type: 3}
+  m_selfScore: {fileID: 0}
+  m_enemyScore: {fileID: 0}
 --- !u!58 &-3007856637764476608
 CircleCollider2D:
   m_ObjectHideFlags: 0
